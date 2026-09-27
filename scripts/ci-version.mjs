@@ -40,6 +40,13 @@ const hasBreaking = subjects.some(
   (s) => /^feat.*!:/.test(s) || s.includes("BREAKING CHANGE")
 )
 const hasFeat = subjects.some((s) => /^feat/.test(s))
+const hasFix = subjects.some((s) => /^fix/.test(s))
+
+// chore/ci/docs 等纯工程提交不升版本,避免每次修 pipeline 都空转一个新版本
+if (!hasBreaking && !hasFeat && !hasFix) {
+  console.log(`no feat/fix since ${lastTag}, keep version ${current}`)
+  process.exit(0)
+}
 
 const next = hasBreaking
   ? `${major + 1}.0.0`
@@ -49,4 +56,4 @@ const next = hasBreaking
 
 pkg.version = next
 writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n")
-console.log(`bumped ${current} -> ${next} (breaking:${hasBreaking} feat:${hasFeat})`)
+console.log(`bumped ${current} -> ${next} (breaking:${hasBreaking} feat:${hasFeat} fix:${hasFix})`)
