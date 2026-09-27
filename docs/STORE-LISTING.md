@@ -106,8 +106,20 @@ Please file an issue on [GitHub](https://github.com/yhkl-dev/zhihu-blocker/issue
 | `version.yml` | push main(合并后) | tag 已存在 → 按提交类型升版本(feat=minor,patch 兜底)并打 tag;否则按当前版本打基线 tag。版本唯一真相 package.json,tag 由它生成 |
 | `release.yml` | tag `v*` | 校验 tag 与 package.json 版本一致(不一致直接 fail,防商店拒绝)→ 打 zip → GitHub Release;配了商店密钥则自动提交 Chrome Web Store |
 
-启用商店自动提交:仓库 Settings → Secrets → Actions 加 4 个密钥:
-`EXTENSION_ID`(商店扩展 ID)、`CLIENT_ID` / `CLIENT_SECRET` / `REFRESH_TOKEN`(Google Cloud OAuth,Chrome Web Store API 凭证,见 [Google 文档](https://developer.chrome.com/docs/webstore/using-api))。
+启用商店自动提交:仓库 Settings → Secrets → Actions 加一个 `SUBMIT_KEYS`,值为 JSON(PlasmoHQ/bpp 格式):
+
+```json
+{
+  "chrome": {
+    "clientId": "<Google Cloud OAuth client id>",
+    "clientSecret": "<client secret>",
+    "refreshToken": "<refresh token>",
+    "extId": "<商店扩展 ID>"
+  }
+}
+```
+
+凭证获取见 [Google 文档](https://developer.chrome.com/docs/webstore/using-api)(Chrome Web Store API OAuth)。未配置时 submit job 自动跳过。
 
 注意:Chrome 商店要求每次提交版本号严格递增,且必须大于商店当前版本。`release.yml` 的校验步骤保证 tag 与 manifest 版本一致;如果手动在后台改过版本造成 tag 落后,提交流程会报错,需要手动打更高的版本。
 

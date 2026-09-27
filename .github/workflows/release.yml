@@ -72,10 +72,7 @@ jobs:
     needs: release
     if: needs.release.outputs.should_release == 'true'
     env:
-      EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-      REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+      SUBMIT_KEYS: ${{ secrets.SUBMIT_KEYS }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -85,5 +82,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm package
       - name: Submit to Chrome Web Store
-        uses: browser-market/bpp@v2
-        if: env.EXTENSION_ID != ''
+        uses: PlasmoHQ/bpp@v3
+        if: env.SUBMIT_KEYS != ''
+        with:
+          keys: ${{ secrets.SUBMIT_KEYS }}
