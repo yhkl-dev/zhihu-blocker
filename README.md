@@ -41,6 +41,16 @@ Plasmo (Chrome MV3) 扩展。藏掉知乎的广告、误用栏目,并可选接�
 | `aiCallCount` | session | 会话 LLM 调用计数,跨 SW 休眠 |
 | `aiLastError` | local | 最近一次 LLM 失败原因,popup 展示 |
 
+## 权限与理由
+
+| 权限 | 为什么需要 |
+|------|-----------|
+| `storage` | 保存你的配置、黑名单、AI 判定缓存、few-shot 样本和 API key。不申请则每次打开全部重置,黑名单无法跨页面生效 |
+| `https://*.zhihu.com/*`、`https://zhihu.com/*`(host) | 唯一工作对象:在知乎页面隐藏所选模块、注入"屏蔽/标注"按钮、应用黑名单与判定结果。没有它无法碰知乎 DOM |
+| `https://api.deepseek.com/*`(host) | 仅在你开启 AI 识别并填了自己的 key 后,由后台把命中初筛的回答正文发给 DeepSeek 判定软广。不开 AI 时无任何网络请求 |
+
+不申请:通知、下载、历史、cookies、无限存储,也不需要。web 页面不可读任何扩展数据。
+
 ## 开发
 
 ```bash
