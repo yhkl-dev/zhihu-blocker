@@ -4,6 +4,7 @@
   "version": "0.0.1",
   "description": "Hide ads and promotional modules on Zhihu, with optional AI soft-ad detection via your own DeepSeek API key.",
   "author": "kaiyang939325@gmail.com",
+  "license": "MIT",
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",
