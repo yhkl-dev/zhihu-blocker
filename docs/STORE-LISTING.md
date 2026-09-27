@@ -96,6 +96,21 @@ Please file an issue on [GitHub](https://github.com/yhkl-dev/zhihu-blocker/issue
 
 拍摄时注意:截图不得含真实用户昵称/头像(隐私合规),建议用未登录状态或打码。
 
+## CI 自动发布
+
+三个 workflow(`.github/workflows/`):
+
+| 文件 | 触发 | 行为 |
+|------|------|------|
+| `ci.yml` | PR + push main | test / typecheck / build |
+| `version.yml` | push main(合并后) | tag 已存在 → 按提交类型升版本(feat=minor,patch 兜底)并打 tag;否则按当前版本打基线 tag。版本唯一真相 package.json,tag 由它生成 |
+| `release.yml` | tag `v*` | 校验 tag 与 package.json 版本一致(不一致直接 fail,防商店拒绝)→ 打 zip → GitHub Release;配了商店密钥则自动提交 Chrome Web Store |
+
+启用商店自动提交:仓库 Settings → Secrets → Actions 加 4 个密钥:
+`EXTENSION_ID`(商店扩展 ID)、`CLIENT_ID` / `CLIENT_SECRET` / `REFRESH_TOKEN`(Google Cloud OAuth,Chrome Web Store API 凭证,见 [Google 文档](https://developer.chrome.com/docs/webstore/using-api))。
+
+注意:Chrome 商店要求每次提交版本号严格递增,且必须大于商店当前版本。`release.yml` 的校验步骤保证 tag 与 manifest 版本一致;如果手动在后台改过版本造成 tag 落后,提交流程会报错,需要手动打更高的版本。
+
 ## 上架前自检
 
 - [ ] `pnpm test` + `pnpm typecheck` + `pnpm build` 全绿
