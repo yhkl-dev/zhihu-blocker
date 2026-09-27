@@ -1,11 +1,14 @@
-# tag v* 触发:全量校验 → 打包 zip → GitHub Release。
-# 若仓库配置了商店密钥(EXTENSION_ID/CLIENT_ID/CLIENT_SECRET/REFRESH_TOKEN),
-# 自动提交 Chrome Web Store(版本号来自 package.json,与 tag 同步)。
+# 双触发:Version workflow 完成后(workflow_run)+ 手动 push tag 兜底。
+# 注意:workflow 里用 GITHUB_TOKEN 推的 tag 不触发 on:push,故不能只挂 push。
+# 幂等:同版本 release 已存在则跳过后续步骤(should_release=false)。
 name: Release
 
 on:
   push:
     tags: ["v*"]
+  workflow_run:
+    workflows: ["Version"]
+    types: [completed]
 
 permissions:
   contents: write
@@ -13,36 +16,60 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' || github.event.workflow_run.conclusion == 'success' }}
+    outputs:
+      should_release: ${{ steps.guard.outputs.should_release }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - uses: pnpm/action-setup@v4
       - run: pnpm install --frozen-lockfile
-      - run: pnpm test
-      - run: pnpm typecheck
-      - name: verify tag matches package.json
+      - name: guard already-released
+        id: guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PKG=$(node -p "require('./package.json').version")
-          TAG=${GITHUB_REF_NAME#v}
-          if [ "$PKG" != "$TAG" ]; then
-            echo "version mismatch: package.json=$PKG tag=$TAG"
+          V=$(node -p "require('./package.json').version")
+          if gh release view "v$V" >/dev/null 2>&1; then
+            echo "release v$V already exists, nothing to do"
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: version env
+        if: steps.guard.outputs.should_release == 'true'
+        run: echo "PKG_VERSION=$(node -p "require('./package.json').version")" >> "$GITHUB_ENV"
+      - name: verify tag matches package.json
+        if: steps.guard.outputs.should_release == 'true'
+        run: |
+          if ! git tag -l "v$PKG_VERSION" | grep -q .; then
+            echo "tag v$PKG_VERSION missing"
             exit 1
           fi
+      - run: pnpm test
+        if: steps.guard.outputs.should_release == 'true'
+      - run: pnpm typecheck
+        if: steps.guard.outputs.should_release == 'true'
       - run: pnpm build
+        if: steps.guard.outputs.should_release == 'true'
       - run: pnpm package
+        if: steps.guard.outputs.should_release == 'true'
       - name: GitHub Release
+        if: steps.guard.outputs.should_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           files: build/chrome-mv3-prod.zip
-          name: v${{ github.ref_name }}
+          name: v${{ env.PKG_VERSION }}
           generate_release_notes: true
 
   submit-store:
-    # 没配 EXTENSION_ID 密钥时整 job 跳过(step if 也能兜,双保险)
     runs-on: ubuntu-latest
     needs: release
+    if: needs.release.outputs.should_release == 'true'
     env:
       EXTENSION_ID: ${{ secrets.EXTENSION_ID }}
       CLIENT_ID: ${{ secrets.CLIENT_ID }}
