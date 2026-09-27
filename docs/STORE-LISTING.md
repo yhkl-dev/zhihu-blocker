@@ -42,7 +42,7 @@
 
 **反馈**
 
-问题与建议请发 [[GitHub Issues](https://github.com/<你的仓库>/zhihu-blocker/issues)]]。
+问题与建议请发 [[GitHub Issues](https://github.com/yhkl-dev/zhihu-blocker/issues)]]。
 
 ### English
 
@@ -67,7 +67,7 @@ No accounts, no telemetry, no ads, fully open source. Answer text is sent only t
 
 **Feedback**
 
-Please file an issue on [GitHub](https://github.com/<your-repo>/zhihu-blocker/issues).
+Please file an issue on [GitHub](https://github.com/yhkl-dev/zhihu-blocker/issues).
 
 ## 权限用途说明(商店逐条字段)
 
@@ -100,7 +100,7 @@ Please file an issue on [GitHub](https://github.com/<your-repo>/zhihu-blocker/is
 
 - [ ] `pnpm test` + `pnpm typecheck` + `pnpm build` 全绿
 - [ ] `pnpm package` 产物 zip 大小 < 20MB(商店上限)
-- [ ] 仓库先 push 上 GitHub,STORE-LISTING 里的占位链接换成真实地址,privacy.md 作为隐私政策链接发布
+- [ ] ~~push + 换链接~~ 完成:https://github.com/yhkl-dev/zhihu-blocker,隐私政策链接 https://github.com/yhkl-dev/zhihu-blocker/blob/main/docs/privacy.md
 - [ ] 真机过一遍 `docs/MANUAL-TEST.md`
 - [ ] 截图不含个人隐私信息
 - [ ] 发布后 Chrome 审核约 1-3 天,提审前版本号定稿 1.0.0(0.0.1 会被视为 pre-release 惯例,不强制)
