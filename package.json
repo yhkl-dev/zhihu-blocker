@@ -2,12 +2,14 @@
   "name": "zhihu-blocker",
   "displayName": "Zhihu blocker",
   "version": "0.0.1",
-  "description": "block zhihu's ads and other none-usage things",
+  "description": "Hide ads and promotional modules on Zhihu, with optional AI soft-ad detection via your own DeepSeek API key.",
   "author": "kaiyang939325@gmail.com",
   "scripts": {
     "dev": "plasmo dev",
     "build": "plasmo build",
-    "package": "plasmo package"
+    "package": "plasmo package",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "plasmo": "0.90.5",
@@ -20,12 +22,21 @@
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
+    "jsdom": "^30.1.1",
     "prettier": "3.2.4",
-    "typescript": "5.3.3"
+    "sharp": "^0.35.4",
+    "typescript": "5.3.3",
+    "vitest": "^4.1.10"
   },
   "manifest": {
+    "minimum_chrome_version": "102",
     "host_permissions": [
-      "https://*/*"
+      "https://*.zhihu.com/*",
+      "https://zhihu.com/*",
+      "https://api.deepseek.com/*"
+    ],
+    "permissions": [
+      "storage"
     ]
   }
 }
